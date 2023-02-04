@@ -247,6 +247,18 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
     initControls();
   }
 
+  @Override
+  public boolean dispatchKeyEvent(KeyEvent event) {
+    int action = event.getAction();
+    int keyCode = event.getKeyCode();
+    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP
+        && action == KeyEvent.ACTION_DOWN) {
+        doCapture();
+        return true;
+    }
+    return super.dispatchKeyEvent(event);
+  }
+
   private void presentRecentItemThumbnail(@Nullable Media media) {
     View      thumbBackground = controlsContainer.findViewById(R.id.camera_gallery_button_background);
     ImageView thumbnail       = controlsContainer.findViewById(R.id.camera_gallery_button);
@@ -330,12 +342,7 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
 
     selfieFlash = requireView().findViewById(R.id.camera_selfie_flash);
 
-    captureButton.setOnClickListener(v -> {
-      captureButton.setEnabled(false);
-      flipButton.setEnabled(false);
-      flashButton.setEnabled(false);
-      onCaptureClicked();
-    });
+    captureButton.setOnClickListener(this::doCapture);
 
     previewView.setScaleType(PREVIEW_SCALE_TYPE);
 
@@ -405,6 +412,13 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
                  "Camera: " + CameraXUtil.getLowestSupportedHardwareLevel(requireContext()) + ", " +
                  "MaxDuration: " + VideoUtil.getMaxVideoRecordDurationInSeconds(requireContext(), controller.getMediaConstraints()) + " sec");
     }
+  }
+
+  private void doCapture() {
+      captureButton.setEnabled(false);
+      flipButton.setEnabled(false);
+      flashButton.setEnabled(false);
+      onCaptureClicked();
   }
 
   private void displayVideoRecordingTooltipIfNecessary(CameraButtonView captureButton) {
